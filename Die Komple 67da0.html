@@ -1,0 +1,661 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Die Komplexität der Zeit vereinfacht</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 3px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	text-indent: -1.7em;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+}
+
+.simple-table-header {
+	background: rgb(247, 246, 243);
+	color: black;
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-block;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1.25em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(55, 53, 47, 1);
+}
+.highlight-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.highlight-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.highlight-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.highlight-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.highlight-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.highlight-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.highlight-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.highlight-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.highlight-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.highlight-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.highlight-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.highlight-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.highlight-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.highlight-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.highlight-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(120, 119, 116, 1);
+	fill: rgba(120, 119, 116, 1);
+}
+.block-color-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.block-color-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.block-color-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.block-color-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.block-color-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(212, 76, 71, 1);
+	fill: rgba(212, 76, 71, 1);
+}
+.block-color-gray_background {
+	background: rgba(241, 241, 239, 1);
+}
+.block-color-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.block-color-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.block-color-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.block-color-purple_background {
+	background: rgba(244, 240, 247, 0.8);
+}
+.block-color-pink_background {
+	background: rgba(249, 238, 243, 0.8);
+}
+.block-color-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.select-value-color-pink { background-color: rgba(245, 224, 233, 1); }
+.select-value-color-purple { background-color: rgba(232, 222, 238, 1); }
+.select-value-color-green { background-color: rgba(219, 237, 219, 1); }
+.select-value-color-gray { background-color: rgba(227, 226, 224, 1); }
+.select-value-color-opaquegray { background-color: rgba(255, 255, 255, 0.0375); }
+.select-value-color-orange { background-color: rgba(250, 222, 201, 1); }
+.select-value-color-brown { background-color: rgba(238, 224, 218, 1); }
+.select-value-color-red { background-color: rgba(255, 226, 221, 1); }
+.select-value-color-yellow { background-color: rgba(253, 236, 200, 1); }
+.select-value-color-blue { background-color: rgba(211, 229, 239, 1); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="2d603bd9-6d43-4095-beab-11c453c7a5d3" class="page sans"><header><h1 class="page-title">Die Komplexität der Zeit vereinfacht</h1></header><div class="page-body"><hr id="2a6f8d02-af81-472b-a6b3-b82200b7b9c8"/><p id="ef2c50a1-5999-4cbe-b47e-cd50f73a50cb" class="">Kannst du dich noch erinnern, wie kurz vor dem Jahreswechsel zum Millennial fast jeder verrückt wurde und Angst hatte, dass alle Computer zusammenbrechen und eine globale Finanzkrise hervorrufen? Als nicht alle Computer-Systeme wegen ihrer begrenzten Ressourcen und geringen Prozessleistung  zwischen dem Jahr 1900 und 2000 unterscheiden konnten? Diese Computer-Systeme nutzten nur zweistellige Jahreszahlen, wie 99 statt 1999 und ein Wechsel zum neuen Jahr bedeutete einen Rückschritt zu 1900. Wenn man Zeitreisen mag, ist das sicher ein sehr einfacher Weg. Aber für beispielsweise Banken oder Fluggesellschaften kann das zu Problemen mit erheblichen Konsequenzen führen. </p><h2 id="f49f6a4a-eacc-45e3-9a7f-54e23b5d5e28" class="">Datum und Uhrzeit in Computern</h2><p id="867128d9-7f2a-4a22-86cc-9e13e550fef3" class="">Der Umgang von Datum und Uhrzeit war schon immer schwierig in Bezug auf Computer. Für Menschen ist die Zuordnung verschiedener Formate wie “25.02.2022”, “25. Februar 2022 15:45:13”,  “25.02.2022, 15 Uhr”, “2022-02-25”, “2022-02-25 10:02:48 AM” oder  “2/25/22” einfach möglich, sie können diese Informationen als Datum bzw. Uhrzeit identifizieren und einordnen. Computer benötigen ein sehr spezifisches Format, um Datum und Uhrzeit zu verstehen. Es ist möglich, diese Beispieldaten in Strings, also Zeichenfolgen, zu speichern. Jedoch ist das Analysieren und Berechnen dieser Zeichenfolgen eine teure Operation und mit den Komplikationen menschlicher Daten und Zeiten in Bezug auf unterschiedliche Formate, Zeitzonen, Sommerzeit, Schaltsekunden usw. wird es sehr komplex. Programmierer haben verschiedene Methoden entwickelt, um dieses Problem der effizienten Speicherung und Verarbeitung von Datum und Uhrzeit zu zu lösen. </p><h2 id="83f17d27-c523-4e15-bc7c-5dc0d89e5a04" class="">Unix Epoch Zeit</h2><p id="da9c7742-d3f2-449f-9a05-45de46cfa85c" class="">Eine der weit verbreiteten Methoden ist die Unixzeit, auch Unix Epoch Zeit genannt. Sie beschreibt einen Zeitpunkt anhand der Anzahl der Sekunden, die seit der ersten Sekunde des Tages 01.01.1970 00:00:00 UTC (willkürlich gesetzter Tag) vergangen sind, wobei jeder Tag exakt 86400 Sekunden hat. Um Datums- und Zeitwerte zu speichern, wird eine 10-stellige Zahl genutzt, die die Sekunden hoch zählt: <strong>1645973622</strong>. Der Wert repräsentiert das Datum <strong>27. Februar 2022 03:55:00 Uhr</strong>. Diese Zahl ist eine vorzeichenbehaftete 32-bit-Ganzzahl (Integer), das heißt er kann die Werte aus einem Bereich von  ca. 136 Jahren annehmen, also von -68 bis +68 Jahre, wobei der 01.01.1970 00:00:00 den Mittelpunkt darstellt. Diese Zeitspanne klingt im Moment nicht viel, aber wir werden später ausführlich darauf eingehen.</p><p id="f12bb64c-9a04-4903-aaf3-ad357ee0962e" class="">In der Tabelle sind Beispiele für Daten vom maximal speicherbaren Datum in der Vergangenheit bis zum maximal möglichem Datum in der Zukunft dargestellt. </p><table id="e13dd9d8-837a-4cb7-8a8a-708f8ed64f93" class="simple-table"><tbody><tr id="bc7adda5-485d-4bde-b6e7-a9a4851be492"><td id="eeyM"><strong>UTC</strong></td><td id="}^dd"><strong>Unixzeit</strong></td></tr><tr id="b17d9e9e-c758-402a-9eb9-db38409764b1"><td id="eeyM">13.12.1901 20:45:52</td><td id="}^dd">-2147483648</td></tr><tr id="b2d9f6ed-898f-4da9-81e7-dc455099ef3f"><td id="eeyM">01.01.1970 00:00:00</td><td id="}^dd">0000000000</td></tr><tr id="ed77c2f3-26e9-4f9e-b8af-faafa737390e"><td id="eeyM">09.03.2015 13:43:25</td><td id="}^dd">1425908605</td></tr><tr id="3396c146-afac-48c0-942d-f6ea86d97646"><td id="eeyM">19.01.2038 03:14:07</td><td id="}^dd">2147483647</td></tr></tbody></table><h2 id="3ba727b7-2bbb-4b1c-911d-6bd739bbbb9f" class="">Warum Unix Epoch Zeit nutzen?</h2><p id="6a2bdd9b-ada2-43c2-93ca-3df6bc3a5325" class="">Die Verwendung eines Integers, also eines ganzzahligen Wertes für Datum und Uhrzeit, ist ein sehr guter Ansatz, wenn es um das Speichern, Analysieren und Verarbeiten von Daten geht.</p><p id="d3fd958d-5238-4fe5-9512-dd519e03a650" class="">Im Gegensatz zu Strings nehmen Integer weniger Platz im Speicher ein; beispielsweise belegt der String  „Sonntag, 27 Feb 2022 14:51:40 GMT“ 29 Bytes, der Integer 1645973500 jedoch nur 4 Bytes.</p><p id="24f2032f-ecaa-4702-84f2-cf112debf672" class="">Integer sind auch schneller zu analysieren und zu vergleichen. Im Folgenden ein vereinfachtes Beispiel: Man möchte 164597362<strong>2</strong> mit 164597362<strong>7</strong> vergleichen. Wenn diese Werte Zeichenfolgen sind, liest und vergleicht der Compiler jede der Ziffern einzeln, sodass 10 Vergleiche notwendig sind, da sich die Zahlen nur in der letzten Ziffer unterscheiden; dies ist eine teure Operation für Computer. Wenn diese Werte jedoch ganze Zahlen sind, gibt es nur einen Vergleich. Auch können mit ganzen Zahlen einfache mathematische Funktionen leicht angewendet werden, sodass z.B. auch Zeitspannen leicht berechnet werden können.</p><p id="bc3a2039-8c80-4c7d-9dd2-9476c1f48834" class="">Ein weiterer Vorteil der Unixzeit ist die Tatsache, dass wir nur ein Format handhaben müssen. Dies ist sehr nützlich für Systeme zum Speichern und Verfolgen von Datums- und Uhrzeitinformationen in dynamischen und verteilten Anwendungen sowohl auf der Client- als auch auf der Serverseite. </p><p id="ed88d1be-48c5-4ea5-bd61-55a1d4b97386" class="">Da der der Integer nur die Anzahl der vergangenen Sekunden wiedergibt, kann er alle Zeitzonen gleichzeitig darstellen. Beispielsweise steht der Zeitstempel 1645564942 für Dienstag, den 22. Februar um 22:22:22 Uhr in Kiel, denselben Tag um 13:22 Uhr in San Francisco und Mittwoch, den 23. Februar um 06:22 Uhr in Kyōto. Diese einzelne Zahl enthält also Zeit in UTC, die für jeden Benutzer in seiner jeweiligen Zeitzone leicht umgerechnet werden kann. Anstatt eine Lookup-Table für Zeitzonen zu haben, können wir einfach die Anzahl der Sekunden für jeden Zeitzonenunterschied addieren oder subtrahieren.</p><h2 id="01af26f1-edb0-4429-a44f-c80efc288649" class="">Beschränkungen bei der Verwendung</h2><p id="6d4990cf-5bb9-4aa6-aa9d-12d4cff88c21" class="">Wie wir bisher gesehen haben, ist die Verwendung von Unix Epoch eine sehr nützliche und effiziente Möglichkeit, um mit Datumsangaben umzugehen. Aber werfen wir einen Blick auf die Nachteile (zum Glück gibt es nicht so viele :)).</p><h3 id="b6780bad-de2a-4b2c-8e3c-eaf37c28fb4c" class="">Lesbarkeit</h3><p id="d097a84e-3b4e-45c3-8de4-485983cbe8df" class="">Zuallererst ist die Ganzzahl nicht (leicht) für Menschen lesbar. Um Code zu debuggen und Datums- und Zeitangaben zu prüfen, ist es notwendig, die Ganzzahl mit z.B. der JavaScript-Funktion Date() menschenlesbar auszugeben.</p><h3 id="827e426e-bd18-4e06-90c0-41f136df3234" class="">Schaltsekunden</h3><p id="793c4050-212f-4c2d-93b9-23283f36a50a" class="">Eine andere Sache, mit der wir uns beschäftigen müssen sind Schaltsekunden. Aufgrund von Unregelmäßigkeiten und langfristiger Verlangsamung der Erdrotation gibt es eine einsekündige Anpassung der koordinierten Weltzeit (UTC), um die Differenz zur Internationalen Atomzeit (TAI), der präzisen Zeit, die von Atomuhren gemessen wird, auszugleichen. Das ist der Grund, warum Digitaluhren gelegentlich eine Zeit wie aus einem Science-Fiction-Roman anzeigen: 23:59:60.</p><figure id="67da01b5-299f-4a2e-8b05-55d45567bc10" class="image"><a href="Die%20Komple%2067da0/Bildschirmfoto_2022-03-08_um_09.23.12.png"><img style="width:1752px" src="Die%20Komple%2067da0/Bildschirmfoto_2022-03-08_um_09.23.12.png"/></a></figure><p id="341f4a4d-27e8-4afb-8df9-e5496c2d63a0" class="">—&gt; Bild von wired; <a href="https://www.wired.com/2015/06/just-drop-leap-second-unnecessary/">https://www.wired.com/2015/06/just-drop-leap-second-unnecessary/</a> Können wir das nutzen, wenn der Name des Fotografen genannt wird?</p><p id="73f4e11d-4cd9-4670-961b-469c063b7b51" class="">Diese Schaltsekunden müssen wir auch für die Unix Epoch Zeit berücksichtigen. Der Tag dauert Sekundenbruchteile länger als 86400 Sekunden, also müssen wir ab und zu eine Sekunde hinzufügen; bei vielen Implementierungen erfolgt das Hinzufügen in Millisekunden. Die folgende Tabelle veranschaulicht, was passiert: Ändert sich die Zeit in UTC auf 23:59:60.00 (Zeit in Millisekunden), zeigt die Unixzeit den Zeitstempel 1483228800.00 mit Status x an. Im nächsten Millisekundenschritt springt der Unix-Zeitstempel auf die Sekunde davor zurück und ändert den Status in y. Er zählt nun auf die volle Sekunde, bis es wieder 1483228800.00 erreicht, aber mit dem neuen Status. Die Statusänderung verhindert den mehrdeutigen Bezug des Zeitstempels 1483228800.00 auf die beiden verschiedene UTC-Zeiten 31.12.2016 23:59:60.00 und 01.01.2017 00:00:00.00.</p><table id="8d23efee-7189-4754-b4b0-b1e5d7a85fdf" class="simple-table"><thead><tr id="9a5ed9ae-c47a-4cb6-bbf9-e5eab62cdb14"><th id="eeyM" class="simple-table-header">UTC</th><th id="^Bjw" class="simple-table-header">Status</th><th id="}^dd" class="simple-table-header"><strong>Unixzeit</strong></th></tr></thead><tbody><tr id="0d2f32c7-d4b9-4814-8965-c8c4b7ba3016"><td id="eeyM">31.12.2016 23:59:59.75</td><td id="^Bjw">x</td><td id="}^dd">1483228799.75</td></tr><tr id="e2f1c0eb-6f73-4a05-83f8-f7dc5503ba84"><td id="eeyM">31.12.2016 23:59:60.00</td><td id="^Bjw">x</td><td id="}^dd">1483228800.00</td></tr><tr id="6512b096-2e76-473c-9e70-cdf38c1d6095"><td id="eeyM">31.12.2016 23:59:60.25</td><td id="^Bjw">y</td><td id="}^dd">1483228800.25</td></tr><tr id="9de7aa6f-4484-4936-9ea2-2e788574fb25"><td id="eeyM">31.12.2016 23:59:60.50</td><td id="^Bjw">y</td><td id="}^dd">1483228800.50</td></tr><tr id="69fe8948-2150-4fd9-b670-7ced6503ffc0"><td id="eeyM">31.12.2016 23:59:60.75</td><td id="^Bjw">y</td><td id="}^dd">1483228800.75</td></tr><tr id="8af0b173-dda2-4ff0-af99-475afe65e493"><td id="eeyM">01.01.2017 00:00:00.00</td><td id="^Bjw">y</td><td id="}^dd">1483228800.00</td></tr></tbody></table><p id="289c88fb-01e5-4c96-87ab-cd7851bcde5b" class="">Eine andere, von Google verwendete Methode zur Berücksichtigung der Schaltsekunden ist “Leap Smear”, ein lineares “Verschmieren” bzw. Verteilen einer Sekunde über 24 Stunden. Jede Sekunde dieser 24 Stunden ist 11,6 μs länger als eine normale Sekunde.</p><p id="72fa3739-8c4f-4ffb-b1d4-5139c5b96358" class="">Die Behandlung der Schaltsekunden ist standardmäßig nicht in der Definition von Unix-Zeitstempeln implementiert, aber es gibt, wie gesehen, verschiedene Methoden, damit umzugehen. </p><h3 id="64d2d0a6-2cf1-4725-9913-9d884f34738e" class="">32-bit- vs. 64-bit-Integer</h3><p id="07c8feaf-63fb-4666-8a92-13f00e72e02f" class="">Bei der Einführung des Unix-Zeitstempels sprachen wir von einer vorzeichenbehaftete 32-Bit-Ganzzahl, die Werte aus einem Bereich von 136 Jahren annehmen kann. Das ist nicht viel und Historiker und Science-Fiction-Autoren wären wahrscheinlich sehr entrüstet darüber. Das maximale Datum in der Zukunft ist der 19. Januar 2038 03:14:07 UTC. Mit dem Wechsel auf die nächste Sekunde 03:14:08 wird die Grenze der Integer erreicht und auf den Maximalwert in der Vergangenheit zurückgesetzt, also auf den 13. Dezember 1901 20:45:52 UTC. Dieses Problem ähnelt dem “Jahr-2000-Problem” und wird „Jahr-2038-Problem“ genannt; wir sprechen auch von einer Epochalypse 😵</p><p id="8f6fd34c-be63-4272-a3ea-eb6e690d5ef0" class="">Besonders für Legacy- (Altsysteme, z. B. alte Finanz- und Bankcomputer) und eingebettete Systeme (z. B. medizinische Geräte), die nicht mehr aktualisiert oder gewartet werden und noch immer die 32-Bit-Implementierung für Zeitstempel verwenden, wird das Jahr 2038 ein großes Problem darstellen und unerwartetes Verhalten verursachen, gegebenenfalls zu Abstürzen führen. </p><p id="90283eb1-be6f-4cda-955c-dc8a754bed00" class="">Eine Lösung für dieses Problem ist die Aktualisierung von 32-bit auf vorzeichenbehaftete 64-bit für die Zeitstempel. Mit 64-bit ist eine Erweiterung der darstellbaren Zeit auf ca. 292 Milliarden Jahre in Vergangenheit und Zukunft möglich.</p><h2 id="6fb46681-4ba7-4d9f-8754-200ea025e456" class="">Fazit</h2><p id="1c36f484-f4de-4d99-a044-05c5a9af003f" class="">Eine Umstellung auf 64-bit erfolgte bereits für viele Systeme, allerdings sind vor allem für Altsysteme und eingebettete Systeme die Aufwände und Möglichkeiten von der jeweiligen Implementierung abhängig. Wir sehen also, dass Zeit sowohl außerhalb als auch innerhalb von Computer-Systemen eine sehr komplexe Thematik ist.</p><p id="a7d4a4ed-9f00-4e8e-b5cd-bd0e563a25f9" class="">Das folgende Video (absolut sehenswert) offenbart sehr deutlich, welche Komplexität sich hinter einer “einfachen” Angabe des Datums und der Uhrzeit verbergen kann: </p><div id="ac7b8d0e-db02-402f-a65a-140dee94afe9" class="column-list"><div id="f39e41f8-529e-4bb4-ab41-d56bcfb40955" style="width:50%" class="column"><figure id="f9ce5ec5-10a3-42a3-a830-2c65df9fdce6"><div class="source"><a href="https://www.youtube.com/watch?v=-5wpm-gesOY">https://www.youtube.com/watch?v=-5wpm-gesOY</a></div></figure></div><div id="302f9176-c458-4ec1-b250-231765074edc" style="width:50%" class="column"><p id="2c0627ad-6369-4556-8692-e0baf2f7b929" class="">
+</p></div></div><p id="505aedec-d4dd-4716-b685-d8b8463a6df5" class="">
+</p><p id="ae78982f-57f3-451a-a85a-eab90e3befc9" class="">Hier sind einige ergänzende Ressourcen zum Thema mit zusätzlichen Informationen, falls du interessiert bist:</p><p id="343bd883-caed-49ad-8418-d236acf5e227" class="">Epoch Konverter: <a href="https://www.epochconverter.com/">https://www.epochconverter.com</a></p><p id="3bcfa5d5-8baa-4cdf-91c7-2e75f04ce18d" class="">Präzise Online Zeit: <a href="https://time.is/">https://time.is</a></p><p id="38cddc7c-503b-4447-8175-944d4a6abfef" class="">Andere Epoch Zeitstempel: <a href="https://en.wikipedia.org/wiki/Epoch_(computing)#Notable_epoch_dates_in_computing">https://en.wikipedia.org/wiki/Epoch_(computing)#Notable_epoch_dates_in_computing</a></p><p id="72888e1e-3ccf-45e9-8ee4-678ba56463ae" class="">Schaltsekunden: <a href="https://what-if.xkcd.com/26/">https://what-if.xkcd.com/26/</a></p><p id="774cc6be-7be1-47d4-bd59-1d5174818585" class="">
+</p><p id="e1c37d97-4e3c-4bdd-bb13-67bb168431b8" class="">
+</p></div></article></body></html>
